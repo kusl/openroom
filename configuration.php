@@ -12,14 +12,14 @@
  * (For LDAP authentication, you must provide a username for the person that you
  * wish to be the initial administrator.)
 */
-$admin_user = "admin";
+$admin_user = "qc\\khada";
 
 //Name
 /*
  * This will set the name of this instance of OpenRoom.
  * Default is "OpenRoom".
 */
-$instance_name = "OpenRoom";
+$instance_name = "OpenRoomDefault";
 
 //URL
 /*
@@ -27,7 +27,7 @@ $instance_name = "OpenRoom";
  * This should be the same address you provide to users.
  * DO NOT include protocol (http:// or https://) or filenames (index.html).
 */
-$instance_url = "www.example.com/openroom/";
+$instance_url = "localhost/~khada/openroomdefault/";
 
 //Theme
 /*
@@ -63,8 +63,8 @@ $login_method = "ldap";
 *$host contains the host name of your ldap server
 *$baseDN contains the base dn settings for you ldap server
 */
-$ldap_host = "";
-$ldap_baseDN = "";
+$ldap_host = "ldaps://149.4.100.201:636";
+$ldap_baseDN = "DC=qc,DC=ads";
 
 
 //Email Filter
@@ -79,7 +79,7 @@ $ldap_baseDN = "";
 *LEAVING THE EMAIL FILTER BLANK WHEN USING THE "normal" LOGIN METHOD MAY COMPROMISE SECURITY.
 *THIS SETTING ALLOWS YOU TO RESTRICT USERS TO ONLY THOSE WHO USE YOUR EMAIL SYSTEM.
 */
-$email_filter = array("bsu.edu");
+$email_filter = array("cuny.edu");
 
 
 

@@ -15,36 +15,36 @@
 *$dbdatabase is the name of the database OpenRoom uses (default: openroom)
 */
 $dbhost = "localhost";
-$dbuser = "username";
-$dbpass = "password";
-$dbdatabase = "openroom";
+$dbuser = "openroomdefault";
+$dbpass = "$)vJ},Qj_H%d1WWmpdyOk86pFK5&@ft*M%)T|LueyUR8/i1jBlHe0QER8S@D_";
+$dbdatabase = "openroomdefault";
 
-mysql_connect($dbhost, $dbuser, $dbpass) or die('Can\'t connect to the database. Error: ' . mysql_error());
-mysql_select_db($dbdatabase) or die('Can\'t connect to the database. Error: ' . mysql_error());
+/** @var mysqli $connection */
+$connection = mysqli_connect($dbhost, $dbuser, $dbpass, $dbdatabase);
 
-$lmresult = mysql_query("SELECT * FROM settings WHERE 1;");
-while($lmrecord = mysql_fetch_array($lmresult)){
+$lmresult = mysqli_query("SELECT * FROM settings WHERE 1;");
+while ($lmrecord = mysqli_fetch_array($lmresult)) {
 	$settings[$lmrecord["settingname"]] = $lmrecord["settingvalue"];
 }
 
 foreach($_POST as $key=>$value){
 	if(!is_array($value)){
-		$_POST[$key] = mysql_real_escape_string($value);
+		$_POST[$key] = mysqli_real_escape_string($value);
 	}
 	else{
 		foreach($value as $key2=>$value2){
-			$_POST[$key][$key2] = mysql_real_escape_string($value2);
+			$_POST[$key][$key2] = mysqli_real_escape_string($value2);
 		}
 	}
 }
 
 foreach($_GET as $key=>$value){
 	if(!is_array($value)){
-		$_GET[$key] = mysql_real_escape_string($value);
+		$_GET[$key] = mysqli_real_escape_string($value);
 	}
 	else{
 		foreach($value as $key2=>$value2){
-			$_GET[$key][$key2] = mysql_real_escape_string($value2);
+			$_GET[$key][$key2] = mysqli_real_escape_string($value2);
 		}
 	}
 }
