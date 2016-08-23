@@ -82,7 +82,6 @@ $ldap_baseDN = "DC=qc,DC=ads";
 $email_filter = array("cuny.edu");
 
 
-
 //Interval
 /*
  * Default: 30 minutes
@@ -91,7 +90,6 @@ $email_filter = array("cuny.edu");
  * reservations of different durations than 30 minute blocks.
 */
 $interval = 30;
-
 
 
 //Time Format
@@ -153,7 +151,7 @@ $time_format = "g:i a";
  * and may make no more than 4 hours (240) worth or reservations per day.
 */
 $limit_duration = 240;
-$limit_total = array(240,"day");
-$limit_frequency = array(0,"day");
-$limit_window = array(6,"month");
+$limit_total = array(240, "day");
+$limit_frequency = array(0, "day");
+$limit_window = array(6, "month");
 ?>

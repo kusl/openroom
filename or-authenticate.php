@@ -29,26 +29,24 @@ $_SESSION["isreporter"] = "FALSE";
 require_once("includes/or-dbinfo.php");
 
 
-
 /*
 *AuthenticateUser()
 *Function Written by: Tim Sprowl
 *Date: 2008
 */
-function AuthenticateUser($username, $password, $settings){
+function AuthenticateUser($username, $password, $settings)
+{
 	$Host = $settings["ldap_host"];
 	$BaseDN = $settings["ldap_baseDN"];
 	// check for empty username and password
-	if(empty($username) || empty($password))
-	{
+	if (empty($username) || empty($password)) {
 		throw new Exception("Username or password not supplied.", 0xb00b00);
 	}
 
-	$connection = @ldap_connect($Host);		// try to make a connection
+	$connection = @ldap_connect($Host);        // try to make a connection
 
 	// if a connection could not be made, throw an exception
-	if(!$connection)
-	{
+	if (!$connection) {
 		throw new Exception(sprintf("Unable to connect to host '%s'.", $Host), 0x5b);
 	}
 
@@ -56,96 +54,86 @@ function AuthenticateUser($username, $password, $settings){
 	$result = @ldap_search($connection, $BaseDN, "sAMAccountname=" . $username);
 
 	// if the search fails, throw an exception
-	if(!$result)
-	{
+	if (!$result) {
 		throw new Exception(@ldap_error($connection), @ldap_errno($connection));
 	}
 
 	// get the first (and hopefully, only) entry in the results
 	$entry = @ldap_first_entry($connection, $result);
 
-	@ldap_free_result($result);		// free up the memory used by the result
+	@ldap_free_result($result);        // free up the memory used by the result
 
 	// if there are no entries, throw an exception
-	if(!$entry)
-	{
+	if (!$entry) {
 		throw new Exception(@ldap_error($connection), @ldap_errno($connection));
 	}
-	
+
 	// get the display for associated with the username
 	$displaynames = @ldap_get_values($connection, $entry, "displayName");
 
 	// if the display name is not set, throw an exception
-	if(!$displaynames)
-	{
+	if (!$displaynames) {
 		throw new Exception(@ldap_error($connection), @ldap_errno($connection));
 	}
 
-	$_SESSION["displayname"] = $displaynames[0];			// use the first entry only
+	$_SESSION["displayname"] = $displaynames[0];            // use the first entry only
 
-	$dn = @ldap_get_dn($connection, $entry);		// get the DN of the entry
+	$dn = @ldap_get_dn($connection, $entry);        // get the DN of the entry
 
 	// if there was a problem getting the DN, throw an exception
-	if(!$dn)
-	{
+	if (!$dn) {
 		throw new Exception(@ldap_error($connection), @ldap_errno($connection));
 	}
 
 	// try to bind the username to the current session and if the
 	// the username could not be bound to the current session
 	// throw an exception
-	if(!@ldap_bind($connection, $dn, $password))
-	{
+	if (!@ldap_bind($connection, $dn, $password)) {
 		throw new Exception(@ldap_error($connection), @ldap_errno($connection));
 	}
 }
 
-$username = isset($_POST["username"])?$_POST["username"]:"";
-$password = isset($_POST["username"])?$_POST["password"]:"";
-$ajax_indicator = isset($_POST["ajax_indicator"])?$_POST["ajax_indicator"]:"FALSE";
+$username = isset($_POST["username"]) ? $_POST["username"] : "";
+$password = isset($_POST["username"]) ? $_POST["password"] : "";
+$ajax_indicator = isset($_POST["ajax_indicator"]) ? $_POST["ajax_indicator"] : "FALSE";
 
 $output = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<authresponse>\n";
 
-if($username != "" && $password != "" && $ajax_indicator != ""){
+if ($username != "" && $password != "" && $ajax_indicator != "") {
 	//LDAP
-	if($settings["login_method"] == "ldap"){
-		try{
+	if ($settings["login_method"] == "ldap") {
+		try {
 			AuthenticateUser($username, $password, $settings);
+		} catch (Exception $e) {
+			$output .= "\t<errormessage>" . $e->getMessage() . "</errormessage>\n";
 		}
-		catch (Exception $e){
-			$output .= "\t<errormessage>". $e->getMessage() ."</errormessage>\n";
-		}
-		if($e){
+		if ($e) {
 			$output .= "\t<authenticated>false</authenticated>\n";
-		}
-		else{
-			if(mysql_num_rows(mysql_query("SELECT * FROM bannedusers WHERE username='". $username ."';")) <= 0){
+		} else {
+			if (mysql_num_rows(mysql_query("SELECT * FROM bannedusers WHERE username='" . $username . "';")) <= 0) {
 				$_SESSION["systemid"] = $settings["systemid"];
 				$_SESSION["username"] = $username;
 				$output .= "\t<errormessage></errormessage>\n";
 				$output .= "\t<authenticated>true</authenticated>\n";
 				//Check if logged in user is an administrator
-				$aresult = mysql_query("SELECT * FROM administrators WHERE username='". $username ."';");
-				if(mysql_num_rows($aresult) == 1){
+				$aresult = mysql_query("SELECT * FROM administrators WHERE username='" . $username . "';");
+				if (mysql_num_rows($aresult) == 1) {
 					$_SESSION["isadministrator"] = "TRUE";
 					$output .= "\t<isadministrator>true</isadministrator>\n";
-				}
-				else{
+				} else {
 					$_SESSION["isadministrator"] = "FALSE";
 					$output .= "\t<isadministrator>false</isadministrator>\n";
 				}
 				//Check if logged in user is a reporter
-				$rresult = mysql_query("SELECT * FROM reporters WHERE username='". $username ."';");
-				if(mysql_num_rows($rresult) == 1){
+				$rresult = mysql_query("SELECT * FROM reporters WHERE username='" . $username . "';");
+				if (mysql_num_rows($rresult) == 1) {
 					$_SESSION["isreporter"] = "TRUE";
 					$output .= "\t<isreporter>true</isreporter>\n";
-				}
-				else{
+				} else {
 					$_SESSION["isreporter"] = "FALSE";
 					$output .= "\t<isreporter>false</isreporter>\n";
 				}
-			}
-			else{
+			} else {
 				$output .= "\t<errormessage>This user has been banned. Please contact an administrator to fix this problem.</errormessage>\n";
 				$output .= "\t<authenticated>false</authenticated>\n";
 				$_SESSION["systemid"] = "";
@@ -154,50 +142,44 @@ if($username != "" && $password != "" && $ajax_indicator != ""){
 				$_SESSION["isreporter"] = "FALSE";
 			}
 		}
-	}
-
-	//Normal
-	elseif($settings["login_method"] == "normal"){
+	} //Normal
+	elseif ($settings["login_method"] == "normal") {
 		$encpass = sha1($password);
-		$lresult = mysql_query("SELECT * FROM users WHERE username='". $username ."' AND password='". $encpass ."';");
-		if(mysql_num_rows($lresult) == 1){
+		$lresult = mysql_query("SELECT * FROM users WHERE username='" . $username . "' AND password='" . $encpass . "';");
+		if (mysql_num_rows($lresult) == 1) {
 			$isactivea = mysql_fetch_array($lresult);
 			$isactive = $isactivea["active"];
-			if(mysql_num_rows(mysql_query("SELECT * FROM bannedusers WHERE username='". $username ."';")) <= 0 && $isactive == "0"){
+			if (mysql_num_rows(mysql_query("SELECT * FROM bannedusers WHERE username='" . $username . "';")) <= 0 && $isactive == "0") {
 				//Set lastlogin time
-				$llresult = mysql_query("UPDATE users SET lastlogin=NOW() WHERE username='". $username ."';");
-				if($llresult){
+				$llresult = mysql_query("UPDATE users SET lastlogin=NOW() WHERE username='" . $username . "';");
+				if ($llresult) {
 					//Set session for user
 					$_SESSION["systemid"] = $settings["systemid"];
 					$_SESSION["username"] = $username;
 					$output .= "\t<errormessage></errormessage>\n";
 					$output .= "\t<authenticated>true</authenticated>\n";
 					//Check if logged in user is an administrator
-					$aresult = mysql_query("SELECT * FROM administrators WHERE username='". $username ."';");
-					if(mysql_num_rows($aresult) == 1){
+					$aresult = mysql_query("SELECT * FROM administrators WHERE username='" . $username . "';");
+					if (mysql_num_rows($aresult) == 1) {
 						$_SESSION["isadministrator"] = "TRUE";
 						$output .= "\t<isadministrator>true</isadministrator>\n";
-					}
-					else{
+					} else {
 						$_SESSION["isadministrator"] = "FALSE";
 						$output .= "\t<isadministrator>false</isadministrator>\n";
 					}
 					//Check if logged in user is a reporter
-					$rresult = mysql_query("SELECT * FROM reporters WHERE username='". $username ."';");
-					if(mysql_num_rows($rresult) == 1){
+					$rresult = mysql_query("SELECT * FROM reporters WHERE username='" . $username . "';");
+					if (mysql_num_rows($rresult) == 1) {
 						$_SESSION["isreporter"] = "TRUE";
 						$output .= "\t<isreporter>true</isreporter>\n";
-					}
-					else{
+					} else {
 						$_SESSION["isreporter"] = "FALSE";
 						$output .= "\t<isreporter>false</isreporter>\n";
 					}
-				}
-				else{
+				} else {
 					$output .= "\t<authenticated>false</authenticated>\n\t<errormessage>Could not set last login time.</errormessage>\n";
 				}
-			}
-			else{
+			} else {
 				$output .= "\t<errormessage>This user has been banned or has not activated their account. Please contact an administrator to fix this problem.</errormessage>\n";
 				$output .= "\t<authenticated>false</authenticated>\n";
 				$_SESSION["systemid"] = "";
@@ -205,23 +187,20 @@ if($username != "" && $password != "" && $ajax_indicator != ""){
 				$_SESSION["isadministrator"] = "FALSE";
 				$_SESSION["isreporter"] = "FALSE";
 			}
-		}
-		else{
+		} else {
 			$output .= "\t<authenticated>false</authenticated>\n\t<errormessage>Incorrect username or password. Please try again.</errormessage>\n";
 		}
 	}
-}
-else{
+} else {
 	$output .= "\t<authenticated>false</authenticated>\n\t<errormessage>One or more parameters not provided.</errormessage>\n";
 }
 
 $output .= "</authresponse>";
 
-if($ajax_indicator == "TRUE"){
+if ($ajax_indicator == "TRUE") {
 	header("content-type: text/xml");
 	echo $output;
-}
-else{
+} else {
 	return $output;
 }
 ?>

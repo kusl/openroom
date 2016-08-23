@@ -27,23 +27,21 @@ while ($lmrecord = mysqli_fetch_array($lmresult)) {
 	$settings[$lmrecord["settingname"]] = $lmrecord["settingvalue"];
 }
 
-foreach($_POST as $key=>$value){
-	if(!is_array($value)){
+foreach ($_POST as $key => $value) {
+	if (!is_array($value)) {
 		$_POST[$key] = mysqli_real_escape_string($value);
-	}
-	else{
-		foreach($value as $key2=>$value2){
+	} else {
+		foreach ($value as $key2 => $value2) {
 			$_POST[$key][$key2] = mysqli_real_escape_string($value2);
 		}
 	}
 }
 
-foreach($_GET as $key=>$value){
-	if(!is_array($value)){
+foreach ($_GET as $key => $value) {
+	if (!is_array($value)) {
 		$_GET[$key] = mysqli_real_escape_string($value);
-	}
-	else{
-		foreach($value as $key2=>$value2){
+	} else {
+		foreach ($value as $key2 => $value2) {
 			$_GET[$key][$key2] = mysqli_real_escape_string($value2);
 		}
 	}
