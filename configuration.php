@@ -19,7 +19,7 @@ $admin_user = "qc\\khada";
  * This will set the name of this instance of OpenRoom.
  * Default is "OpenRoom".
 */
-$instance_name = "OpenRoomDefault";
+$instance_name = "OpenRoomVanilla";
 
 //URL
 /*
@@ -27,7 +27,7 @@ $instance_name = "OpenRoomDefault";
  * This should be the same address you provide to users.
  * DO NOT include protocol (http:// or https://) or filenames (index.html).
 */
-$instance_url = "localhost/~khada/openroomdefault/";
+$instance_url = "library-test.qc.cuny.edu/orv";
 
 //Theme
 /*
@@ -63,7 +63,7 @@ $login_method = "ldap";
 *$host contains the host name of your ldap server
 *$baseDN contains the base dn settings for you ldap server
 */
-$ldap_host = "ldaps://149.4.100.201:636";
+$ldap_host = "ldap://149.4.100.201:3268";
 $ldap_baseDN = "DC=qc,DC=ads";
 
 
