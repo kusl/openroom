@@ -12,7 +12,7 @@
  * (For LDAP authentication, you must provide a username for the person that you
  * wish to be the initial administrator.)
 */
-$admin_user = "qc\\khada";
+$admin_user = "khada";
 
 //Name
 /*
