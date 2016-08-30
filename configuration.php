@@ -12,7 +12,7 @@
  * (For LDAP authentication, you must provide a username for the person that you
  * wish to be the initial administrator.)
 */
-$admin_user = "admin";
+$admin_user = "qc\khada";
 
 //Name
 /*
@@ -27,7 +27,7 @@ $instance_name = "OpenRoom";
  * This should be the same address you provide to users.
  * DO NOT include protocol (http:// or https://) or filenames (index.html).
 */
-$instance_url = "www.example.com/openroom/";
+$instance_url = "localhost:8080/~kushal/";
 
 //Theme
 /*
@@ -45,7 +45,7 @@ $theme = "default";
 *COMPROMISING SECURITY. PLEASE LEAVE THIS AT ITS DEFAULT SETTING UNLESS YOU HAVE NO OTHER CHOICE.
 *Setting this value to TRUE will add the https protocol where appropriate to insure security.
 */
-$https = "true";
+$https = "false";
 
 
 //Login Method
@@ -63,7 +63,7 @@ $login_method = "ldap";
 *$host contains the host name of your ldap server
 *$baseDN contains the base dn settings for you ldap server
 */
-$ldap_host = "";
+$ldap_host = "ldaps://admindc1.qc.ads:636";
 $ldap_baseDN = "";
 
 
@@ -79,7 +79,7 @@ $ldap_baseDN = "";
 *LEAVING THE EMAIL FILTER BLANK WHEN USING THE "normal" LOGIN METHOD MAY COMPROMISE SECURITY.
 *THIS SETTING ALLOWS YOU TO RESTRICT USERS TO ONLY THOSE WHO USE YOUR EMAIL SYSTEM.
 */
-$email_filter = array("bsu.edu");
+$email_filter = array("qc.cuny.edu");
 
 
 

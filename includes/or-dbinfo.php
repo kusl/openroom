@@ -15,9 +15,9 @@
 *$dbdatabase is the name of the database OpenRoom uses (default: openroom)
 */
 $dbhost = "localhost";
-$dbuser = "username";
-$dbpass = "password";
-$dbdatabase = "openroom";
+$dbuser = "root";
+$dbpass = "kripa123";
+$dbdatabase = "openroom1";
 
 mysql_connect($dbhost, $dbuser, $dbpass) or die('Can\'t connect to the database. Error: ' . mysql_error());
 mysql_select_db($dbdatabase) or die('Can\'t connect to the database. Error: ' . mysql_error());
