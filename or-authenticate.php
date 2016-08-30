@@ -1,11 +1,4 @@
 <?php
-declare(strict_types = 1);
-require 'vendor/autoload.php';
-$logger = new Katzgrau\KLogger\Logger(__DIR__ . '/logs');
-$logger->info('opened file or-authenticate');
-if (!isset($_SESSION)) {
-    session_start();
-}
 if (!isset($_SESSION)) {
     session_start();
 }
