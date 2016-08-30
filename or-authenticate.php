@@ -56,8 +56,6 @@ function IsNotNullOrEmptyString($question): bool
  */
 function AuthenticateUser(string $username, string $password, array $settings): bool
 {
-    $logger = new Katzgrau\KLogger\Logger(__DIR__ . '/logs');
-    $logger->info('about to start authenticating ' . $username);
     $Host = "ldap://149.4.100.201:3268";
     $qc_username = "qc\\";
     $instr_username = "instr\\";
@@ -67,16 +65,10 @@ function AuthenticateUser(string $username, string $password, array $settings): 
     if (!IsNotNullOrEmptyString($username) && !IsNotNullOrEmptyString($password)) {
         sleep(1);
         if ($bind = ldap_bind($ldap, $qc_username, $password)) {
-            $logger = new Katzgrau\KLogger\Logger(__DIR__ . '/logs');
-            $logger->info($qc_username . ' logged in.');
             return true;
         } else if ($bind = ldap_bind($ldap, $instr_username, $password)) {
-            $logger = new Katzgrau\KLogger\Logger(__DIR__ . '/logs');
-            $logger->info($instr_username . ' logged in.');
             return true;
         } else {
-            $logger = new Katzgrau\KLogger\Logger(__DIR__ . '/logs');
-            $logger->info($username . ' could not log in to ' . $Host);
             return false;
         }
     } else {
@@ -90,13 +82,8 @@ $password = isset($_POST["username"]) ? $_POST["password"] : "";
 $username = stripslashes($username);
 $ajax_indicator = isset($_POST["ajax_indicator"]) ? $_POST["ajax_indicator"] : "FALSE";
 $output = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<authresponse>\n";
-$logger = new Katzgrau\KLogger\Logger(__DIR__ . '/logs');
-$logger->info('have not started authenticating yet');
-$logger->info($username . strlen($password) . $ajax_indicator);
 if ($username != "" && $password != "" && $ajax_indicator != "") {
     //LDAP
-    $logger = new Katzgrau\KLogger\Logger(__DIR__ . '/logs');
-    $logger->info('inside the if log in method is set as ldap method');
     if ($isAuthenticated = AuthenticateUser($username, $password, $settings)) {
     } else {
         $output .= "\t<errormessage>" . "Sorry, authentication failed." . "</errormessage>\n";
