@@ -81,10 +81,10 @@ function ajaxAuthenticate(){
 		<li>
 			<input id="loginsubmitbutton" class="button" type="submit" value="Log In" onclick="javascript:ajaxAuthenticate()" /><br/>
 			<?php
-				if($settings["login_method"] == "normal"){
-					echo "<span class=\"registrationlink\"><a href=\"createaccount.php\">Create Account</a></span><br/><br/>";
-				}
-			?>
+                if ($settings['login_method'] == 'normal') {
+                    echo '<span class="registrationlink"><a href="createaccount.php">Create Account</a></span><br/><br/>';
+                }
+            ?>
 		</li>
 	</ul>
 </form>

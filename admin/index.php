@@ -1,24 +1,21 @@
 <?php
-	session_start();
-	
-	include("../includes/or-dbinfo.php");
-	
-	if(!(isset($_SESSION["username"])) || $_SESSION["username"] == ""){
-		echo "You are not logged in. Please <a href=\"../index.php\">click here</a> and login with an account that is an authorized administrator or reporter.";
-	}
-	elseif($_SESSION["isadministrator"] != "TRUE" && $_SESSION["isreporter"] != "TRUE"){
-		echo "You must be authorized as an administrator or reporter to view this page. Please <a href=\"../index.php\">go back</a>.<br/>If you believe you received this message in error, contact an administrator.";
-	}
-	elseif($_SESSION["systemid"] != $settings["systemid"]){
-		echo "You are not logged in. Please <a href=\"../index.php\">click here</a> and login with an account that is an authorized administrator or reporter.";
-	}
-	else{
-		?>
+    session_start();
+
+    include '../includes/or-dbinfo.php';
+
+    if (!(isset($_SESSION['username'])) || $_SESSION['username'] == '') {
+        echo 'You are not logged in. Please <a href="../index.php">click here</a> and login with an account that is an authorized administrator or reporter.';
+    } elseif ($_SESSION['isadministrator'] != 'TRUE' && $_SESSION['isreporter'] != 'TRUE') {
+        echo 'You must be authorized as an administrator or reporter to view this page. Please <a href="../index.php">go back</a>.<br/>If you believe you received this message in error, contact an administrator.';
+    } elseif ($_SESSION['systemid'] != $settings['systemid']) {
+        echo 'You are not logged in. Please <a href="../index.php">click here</a> and login with an account that is an authorized administrator or reporter.';
+    } else {
+        ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-	<title><?php echo $settings["instance_name"]; ?> - Administration</title>
+	<title><?php echo $settings['instance_name']; ?> - Administration</title>
 	<link rel="stylesheet" type="text/css" href="adminstyle.css" />
 	<meta http-equiv="Content-Script-Type" content="text/javascript" />
 	
@@ -28,9 +25,11 @@
 </head>
 
 <body>
-	<div id="heading"><span class="username"><?php echo isset($_SESSION["username"])?"<strong>Logged in as</strong>: ". $_SESSION["username"]:"&nbsp;"; ?></span>&nbsp;<?php echo ($_SESSION["isadministrator"] == "TRUE")?"<span class=\"isadministrator\">(Admin)</span>&nbsp;":""; echo ($_SESSION["isreporter"] == "TRUE")?"<span class=\"isreporter\">(Reporter)</span>&nbsp;":""; ?>|&nbsp;<a href="../index.php">Public View</a>&nbsp;|&nbsp;<a href="../modules/logout.php">Logout</a></div>
+	<div id="heading"><span class="username"><?php echo isset($_SESSION['username']) ? '<strong>Logged in as</strong>: '.$_SESSION['username'] : '&nbsp;'; ?></span>&nbsp;<?php echo ($_SESSION['isadministrator'] == 'TRUE') ? '<span class="isadministrator">(Admin)</span>&nbsp;' : '';
+        echo ($_SESSION['isreporter'] == 'TRUE') ? '<span class="isreporter">(Reporter)</span>&nbsp;' : ''; ?>|&nbsp;<a href="../index.php">Public View</a>&nbsp;|&nbsp;<a href="../modules/logout.php">Logout</a></div>
 	<div id="container">
-	<?php if($_SESSION["isadministrator"] == "TRUE"){?>
+	<?php if ($_SESSION['isadministrator'] == 'TRUE') {
+            ?>
 	<h3>User Management</h3>
 	<ul>
 		
@@ -59,8 +58,8 @@
 		<li><a href="reminder.php">Reminder Message</a><em> - The Reminder Message appears at the top of every page.</em></li>
 	</ul>
 	<?php
-	}
-	?>
+
+        } ?>
 	
 	<h3>Reports</h3>
 	<ul>
@@ -110,17 +109,16 @@
 						</select>
 						<select name="startyear">
 							<?php
-								//Get earliest year of reservations
-								$eyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY start ASC;"));
-								$eyear = date("Y", strtotime($eyear["start"]));
-								//Get latest year of reservations
-								$lyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY end DESC;"));
-								$lyear = date("Y", strtotime($lyear["end"]));
-								while($eyear <= $lyear){
-									echo "<option value=\"". $eyear ."\">". $eyear ."</option>";
-									$eyear++;
-								}
-							?>
+                                //Get earliest year of reservations
+                                $eyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY start ASC;'));
+        $eyear = date('Y', strtotime($eyear['start']));
+                                //Get latest year of reservations
+                                $lyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY end DESC;'));
+        $lyear = date('Y', strtotime($lyear['end']));
+        while ($eyear <= $lyear) {
+            echo '<option value="'.$eyear.'">'.$eyear.'</option>';
+            $eyear++;
+        } ?>
 						</select>
 						and ending: <select name="endmonth">
 							<option value="1">January</option>
@@ -138,17 +136,16 @@
 						</select>
 						<select name="endyear">
 							<?php
-								//Get earliest year of reservations
-								$eyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY start ASC;"));
-								$eyear = date("Y", strtotime($eyear["start"]));
-								//Get latest year of reservations
-								$lyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY end DESC;"));
-								$lyear = date("Y", strtotime($lyear["end"]));
-								while($eyear <= $lyear){
-									echo "<option value=\"". $eyear ."\">". $eyear ."</option>";
-									$eyear++;
-								}
-							?>
+                                //Get earliest year of reservations
+                                $eyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY start ASC;'));
+        $eyear = date('Y', strtotime($eyear['start']));
+                                //Get latest year of reservations
+                                $lyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY end DESC;'));
+        $lyear = date('Y', strtotime($lyear['end']));
+        while ($eyear <= $lyear) {
+            echo '<option value="'.$eyear.'">'.$eyear.'</option>';
+            $eyear++;
+        } ?>
 							
 						</select>
 						<input type="submit" value="Run Report" />
@@ -195,17 +192,16 @@
 						</select>
 						<select name="startyear">
 							<?php
-								//Get earliest year of reservations
-								$eyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY start ASC;"));
-								$eyear = date("Y", strtotime($eyear["start"]));
-								//Get latest year of reservations
-								$lyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY end DESC;"));
-								$lyear = date("Y", strtotime($lyear["end"]));
-								while($eyear <= $lyear){
-									echo "<option value=\"". $eyear ."\">". $eyear ."</option>";
-									$eyear++;
-								}
-							?>
+                                //Get earliest year of reservations
+                                $eyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY start ASC;'));
+        $eyear = date('Y', strtotime($eyear['start']));
+                                //Get latest year of reservations
+                                $lyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY end DESC;'));
+        $lyear = date('Y', strtotime($lyear['end']));
+        while ($eyear <= $lyear) {
+            echo '<option value="'.$eyear.'">'.$eyear.'</option>';
+            $eyear++;
+        } ?>
 						</select>
 						and ending: <select name="endmonth">
 							<option value="1">January</option>
@@ -223,17 +219,16 @@
 						</select>
 						<select name="endyear">
 							<?php
-								//Get earliest year of reservations
-								$eyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY start ASC;"));
-								$eyear = date("Y", strtotime($eyear["start"]));
-								//Get latest year of reservations
-								$lyear = mysql_fetch_array(mysql_query("SELECT * FROM reservations ORDER BY end DESC;"));
-								$lyear = date("Y", strtotime($lyear["end"]));
-								while($eyear <= $lyear){
-									echo "<option value=\"". $eyear ."\">". $eyear ."</option>";
-									$eyear++;
-								}
-							?>
+                                //Get earliest year of reservations
+                                $eyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY start ASC;'));
+        $eyear = date('Y', strtotime($eyear['start']));
+                                //Get latest year of reservations
+                                $lyear = mysql_fetch_array(mysql_query('SELECT * FROM reservations ORDER BY end DESC;'));
+        $lyear = date('Y', strtotime($lyear['end']));
+        while ($eyear <= $lyear) {
+            echo '<option value="'.$eyear.'">'.$eyear.'</option>';
+            $eyear++;
+        } ?>
 							
 						</select>
 						<input type="submit" value="Run Report" />
@@ -246,5 +241,6 @@
 </body>
 </html>
 		<?php
-	}
+
+    }
 ?>

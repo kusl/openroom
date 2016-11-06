@@ -1,1 +1,1 @@
-<?php include("modules/dayview.php"); ?>
+<?php include 'modules/dayview.php';

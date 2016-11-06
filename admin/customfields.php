@@ -1,137 +1,121 @@
 <?php
-	session_start();
-	
-	include("../includes/or-dbinfo.php");
-	
-	if(!(isset($_SESSION["username"])) || $_SESSION["username"] == ""){
-		echo "You are not logged in. Please <a href=\"../index.php\">click here</a> and login with an account that is an authorized administrator or reporter.";
-	}
-	elseif($_SESSION["isadministrator"] != "TRUE"){
-		echo "You must be authorized as an administrator to view this page. Please <a href=\"../index.php\">go back</a>.<br/>If you believe you received this message in error, contact an administrator.";
-	}
-	elseif($_SESSION["systemid"] != $settings["systemid"]){
-		echo "You are not logged in. Please <a href=\"../index.php\">click here</a> and login with an account that is an authorized administrator or reporter.";
-	}
-	else{
-		
-		$op = isset($_REQUEST["op"])?$_REQUEST["op"]:"";
-		$optionformname = isset($_REQUEST["optionformname"])?$_REQUEST["optionformname"]:"";
-		
-		$successmsg = "";
-		$errormsg = "";
-		
-		switch($op){
-			case "deleteoption":
-				//Delete from the table and subtract 1 from the optionorder of all fields with a higher order
-				$record = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionformname='". $optionformname ."';"));
-				if(mysql_query("DELETE FROM optionalfields WHERE optionformname='". $optionformname ."';")){
-					$allrecs = mysql_query("SELECT * FROM optionalfields;");
-					while($arec = mysql_fetch_array($allrecs)){
-						if($arec["optionorder"] > $record["optionorder"]){
-							mysql_query("UPDATE optionalfields SET optionorder=". ($arec["optionorder"] - 1) ." WHERE optionformname='". $arec["optionformname"] ."';");
-						}
-					}
-					
-					mysql_query("DELETE FROM reservationoptions WHERE optionname='". $record["optionname"] ."';");
-					
-					$successmsg = $record["optionname"] ." has been deleted. <strong>You may want to update On Condition Emails under <a href=\"email.php\">Email Setup</a> if this field was set up as a condition.</strong>";
-				}
-				else{
-					$errormsg = "There was a problem deleting the ". $record["optionname"] ." field. Please try again.";
-				}
-				//Delete all related records from the reservationoptions table
-				break;
-			case "addoption":
-				$optionname = isset($_REQUEST["optionname"])?$_REQUEST["optionname"]:"";
-				$optionquestion = isset($_REQUEST["optionquestion"])?$_REQUEST["optionquestion"]:"";
-				$optiontype = isset($_REQUEST["optiontype"])?$_REQUEST["optiontype"]:"";
-				$optionchoices = isset($_REQUEST["optionchoices"])?$_REQUEST["optionchoices"]:"";
-				$optionprivate = isset($_REQUEST["optionprivate"])?$_REQUEST["optionprivate"]:"";
-				$optionrequired = isset($_REQUEST["optionrequired"])?$_REQUEST["optionrequired"]:"";
-				
-				if($optionname != ""){
-					if($optionquestion != ""){
-						if(preg_match("/^[a-z]/", $optionformname)){
-							if($optiontype == "0" || $optiontype == "1"){
-								if($optiontype == "1" && $optionchoices != ""){
-									$optionchoices = trim($optionchoices);
-									$optionchoices = str_replace(" ", "", $optionchoices);
-								}
-								elseif($optiontype == "1" && $optionchoices == ""){
-									$errormsg .= "Make sure to add Choices if you've chosen the Selection type.";
-								}
-								if($optionprivate == "0" || $optionprivate == "1"){
-									if($optionrequired == "0" || $optionrequired == "1"){
-										//Get highest order
-										$ordera = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields ORDER BY optionorder DESC;"));
-										$highestorder = $ordera["optionorder"];
-										if(mysql_query("INSERT INTO optionalfields VALUES('". $optionname ."','". $optionformname ."','". $optiontype ."','". $optionchoices ."',". ($highestorder + 1) .",'". $optionquestion ."',". $optionprivate .",". $optionrequired .");")){
-											$successmsg = "New Custom Field has been added!";
-										}
-										else{
-											$errormsg = "There was a problem adding this field to the database. Please try again.";
-										}
-									}
-									else{
-										$errormsg .= "Please select Yes or No for the Required field.";
-									}
-								}
-								else{
-									$errormsg .= "Please select Yes or No for the Private field.";
-								}
-							}
-							else{
-								$errormsg .= "Please select Text or Selection for the Type field.";
-							}
-						}
-						else{
-							$errormsg .= "Form Name may only be lowercase letters. No spaces allowed.";
-						}
-					}
-					else{
-						$errormsg .= "Please enter a Form Question.";
-					}
-				}
-				else{
-					$errormsg .= "The Name field is empty!";
-				}
-				break;
-			case "incorder":
-				$allcount = mysql_num_rows(mysql_query("SELECT * FROM optionalfields;"));
-				$thisop = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionformname='". $optionformname ."';"));
-				$thispos = $thisop["optionorder"];
-				if($thispos < ($allcount-1)){
-					$nextop = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionorder=". ($thispos + 1) .";"));
-					$nextname = $nextop["optionformname"];
-					mysql_query("UPDATE optionalfields SET optionorder=". $thispos ." WHERE optionformname='". $nextname ."';");
-					mysql_query("UPDATE optionalfields SET optionorder=". ($thispos + 1) ." WHERE optionformname='". $optionformname ."';");
-				}
-				break;
-			case "decorder":
-				$allcount = mysql_num_rows(mysql_query("SELECT * FROM optionalfields;"));
-				$thisop = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionformname='". $optionformname ."';"));
-				$thispos = $thisop["optionorder"];
-				if($thispos > 0){
-					$nextop = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionorder=". ($thispos - 1) .";"));
-					$nextname = $nextop["optionformname"];
-					mysql_query("UPDATE optionalfields SET optionorder=". $thispos ." WHERE optionformname='". $nextname ."';");
-					mysql_query("UPDATE optionalfields SET optionorder=". ($thispos - 1) ." WHERE optionformname='". $optionformname ."';");
-				}
-				break;
-		}
-		
-		$lmresult = mysql_query("SELECT * FROM settings WHERE 1;");
-		while($lmrecord = mysql_fetch_array($lmresult)){
-			$settings[$lmrecord["settingname"]] = $lmrecord["settingvalue"];
-		}
-		
-		
-		?>
+    session_start();
+
+    include '../includes/or-dbinfo.php';
+
+    if (!(isset($_SESSION['username'])) || $_SESSION['username'] == '') {
+        echo 'You are not logged in. Please <a href="../index.php">click here</a> and login with an account that is an authorized administrator or reporter.';
+    } elseif ($_SESSION['isadministrator'] != 'TRUE') {
+        echo 'You must be authorized as an administrator to view this page. Please <a href="../index.php">go back</a>.<br/>If you believe you received this message in error, contact an administrator.';
+    } elseif ($_SESSION['systemid'] != $settings['systemid']) {
+        echo 'You are not logged in. Please <a href="../index.php">click here</a> and login with an account that is an authorized administrator or reporter.';
+    } else {
+        $op = isset($_REQUEST['op']) ? $_REQUEST['op'] : '';
+        $optionformname = isset($_REQUEST['optionformname']) ? $_REQUEST['optionformname'] : '';
+
+        $successmsg = '';
+        $errormsg = '';
+
+        switch ($op) {
+            case 'deleteoption':
+                //Delete from the table and subtract 1 from the optionorder of all fields with a higher order
+                $record = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionformname='".$optionformname."';"));
+                if (mysql_query("DELETE FROM optionalfields WHERE optionformname='".$optionformname."';")) {
+                    $allrecs = mysql_query('SELECT * FROM optionalfields;');
+                    while ($arec = mysql_fetch_array($allrecs)) {
+                        if ($arec['optionorder'] > $record['optionorder']) {
+                            mysql_query('UPDATE optionalfields SET optionorder='.($arec['optionorder'] - 1)." WHERE optionformname='".$arec['optionformname']."';");
+                        }
+                    }
+
+                    mysql_query("DELETE FROM reservationoptions WHERE optionname='".$record['optionname']."';");
+
+                    $successmsg = $record['optionname'].' has been deleted. <strong>You may want to update On Condition Emails under <a href="email.php">Email Setup</a> if this field was set up as a condition.</strong>';
+                } else {
+                    $errormsg = 'There was a problem deleting the '.$record['optionname'].' field. Please try again.';
+                }
+                //Delete all related records from the reservationoptions table
+                break;
+            case 'addoption':
+                $optionname = isset($_REQUEST['optionname']) ? $_REQUEST['optionname'] : '';
+                $optionquestion = isset($_REQUEST['optionquestion']) ? $_REQUEST['optionquestion'] : '';
+                $optiontype = isset($_REQUEST['optiontype']) ? $_REQUEST['optiontype'] : '';
+                $optionchoices = isset($_REQUEST['optionchoices']) ? $_REQUEST['optionchoices'] : '';
+                $optionprivate = isset($_REQUEST['optionprivate']) ? $_REQUEST['optionprivate'] : '';
+                $optionrequired = isset($_REQUEST['optionrequired']) ? $_REQUEST['optionrequired'] : '';
+
+                if ($optionname != '') {
+                    if ($optionquestion != '') {
+                        if (preg_match('/^[a-z]/', $optionformname)) {
+                            if ($optiontype == '0' || $optiontype == '1') {
+                                if ($optiontype == '1' && $optionchoices != '') {
+                                    $optionchoices = trim($optionchoices);
+                                    $optionchoices = str_replace(' ', '', $optionchoices);
+                                } elseif ($optiontype == '1' && $optionchoices == '') {
+                                    $errormsg .= "Make sure to add Choices if you've chosen the Selection type.";
+                                }
+                                if ($optionprivate == '0' || $optionprivate == '1') {
+                                    if ($optionrequired == '0' || $optionrequired == '1') {
+                                        //Get highest order
+                                        $ordera = mysql_fetch_array(mysql_query('SELECT * FROM optionalfields ORDER BY optionorder DESC;'));
+                                        $highestorder = $ordera['optionorder'];
+                                        if (mysql_query("INSERT INTO optionalfields VALUES('".$optionname."','".$optionformname."','".$optiontype."','".$optionchoices."',".($highestorder + 1).",'".$optionquestion."',".$optionprivate.','.$optionrequired.');')) {
+                                            $successmsg = 'New Custom Field has been added!';
+                                        } else {
+                                            $errormsg = 'There was a problem adding this field to the database. Please try again.';
+                                        }
+                                    } else {
+                                        $errormsg .= 'Please select Yes or No for the Required field.';
+                                    }
+                                } else {
+                                    $errormsg .= 'Please select Yes or No for the Private field.';
+                                }
+                            } else {
+                                $errormsg .= 'Please select Text or Selection for the Type field.';
+                            }
+                        } else {
+                            $errormsg .= 'Form Name may only be lowercase letters. No spaces allowed.';
+                        }
+                    } else {
+                        $errormsg .= 'Please enter a Form Question.';
+                    }
+                } else {
+                    $errormsg .= 'The Name field is empty!';
+                }
+                break;
+            case 'incorder':
+                $allcount = mysql_num_rows(mysql_query('SELECT * FROM optionalfields;'));
+                $thisop = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionformname='".$optionformname."';"));
+                $thispos = $thisop['optionorder'];
+                if ($thispos < ($allcount - 1)) {
+                    $nextop = mysql_fetch_array(mysql_query('SELECT * FROM optionalfields WHERE optionorder='.($thispos + 1).';'));
+                    $nextname = $nextop['optionformname'];
+                    mysql_query('UPDATE optionalfields SET optionorder='.$thispos." WHERE optionformname='".$nextname."';");
+                    mysql_query('UPDATE optionalfields SET optionorder='.($thispos + 1)." WHERE optionformname='".$optionformname."';");
+                }
+                break;
+            case 'decorder':
+                $allcount = mysql_num_rows(mysql_query('SELECT * FROM optionalfields;'));
+                $thisop = mysql_fetch_array(mysql_query("SELECT * FROM optionalfields WHERE optionformname='".$optionformname."';"));
+                $thispos = $thisop['optionorder'];
+                if ($thispos > 0) {
+                    $nextop = mysql_fetch_array(mysql_query('SELECT * FROM optionalfields WHERE optionorder='.($thispos - 1).';'));
+                    $nextname = $nextop['optionformname'];
+                    mysql_query('UPDATE optionalfields SET optionorder='.$thispos." WHERE optionformname='".$nextname."';");
+                    mysql_query('UPDATE optionalfields SET optionorder='.($thispos - 1)." WHERE optionformname='".$optionformname."';");
+                }
+                break;
+        }
+
+        $lmresult = mysql_query('SELECT * FROM settings WHERE 1;');
+        while ($lmrecord = mysql_fetch_array($lmresult)) {
+            $settings[$lmrecord['settingname']] = $lmrecord['settingvalue'];
+        } ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-	<title><?php echo $settings["instance_name"]; ?> - Administration - Custom Fields</title>
+	<title><?php echo $settings['instance_name']; ?> - Administration - Custom Fields</title>
 	<link rel="stylesheet" type="text/css" href="adminstyle.css" />
 	<meta http-equiv="Content-Script-Type" content="text/javascript" />
 	<script language="javascript" type="text/javascript">
@@ -158,17 +142,17 @@
 </head>
 
 <body>
-	<div id="heading"><span class="username"><?php echo isset($_SESSION["username"])?"<strong>Logged in as</strong>: ". $_SESSION["username"]:"&nbsp;"; ?></span>&nbsp;<?php echo ($_SESSION["isadministrator"] == "TRUE")?"<span class=\"isadministrator\">(Admin)</span>&nbsp;":""; echo ($_SESSION["isreporter"] == "TRUE")?"<span class=\"isreporter\">(Reporter)</span>&nbsp;":""; ?>|&nbsp;<a href="../index.php">Public View</a>&nbsp;|&nbsp;<a href="../modules/logout.php">Logout</a></div>
+	<div id="heading"><span class="username"><?php echo isset($_SESSION['username']) ? '<strong>Logged in as</strong>: '.$_SESSION['username'] : '&nbsp;'; ?></span>&nbsp;<?php echo ($_SESSION['isadministrator'] == 'TRUE') ? '<span class="isadministrator">(Admin)</span>&nbsp;' : '';
+        echo ($_SESSION['isreporter'] == 'TRUE') ? '<span class="isreporter">(Reporter)</span>&nbsp;' : ''; ?>|&nbsp;<a href="../index.php">Public View</a>&nbsp;|&nbsp;<a href="../modules/logout.php">Logout</a></div>
 	<div id="container">
 	<center>
-	<?php if($_SESSION["isadministrator"] == "TRUE"){
-		if($successmsg != ""){
-			echo "<div id=\"successmsg\">". $successmsg ."</div>";
-		}
-		if($errormsg != ""){
-			echo "<div id=\"errormsg\">". $errormsg ."</div>";
-		}
-	?>
+	<?php if ($_SESSION['isadministrator'] == 'TRUE') {
+            if ($successmsg != '') {
+                echo '<div id="successmsg">'.$successmsg.'</div>';
+            }
+            if ($errormsg != '') {
+                echo '<div id="errormsg">'.$errormsg.'</div>';
+            } ?>
 	</center>
 	<h3><a href="index.php">Administration</a> - Custom Fields</h3>
 	<br/><br/>
@@ -185,67 +169,60 @@
 		<td class="tableheader">Delete</td>
 	</tr>
 	<?php
-		$ofa = mysql_query("SELECT * FROM optionalfields ORDER by optionorder ASC;");
-		$ofn = mysql_num_rows($ofa);
-		$orderstr = "";
-		$count = 0;
-		while($of = mysql_fetch_array($ofa)){
-			if($of["optiontype"] == 0){
-				$oftype = "Text";
-			}
-			else{
-				$oftype = "Selection";
-			}
-			
-			if($of["optionprivate"] == 0){
-				$ofprivate = "No";
-			}
-			else{
-				$ofprivate = "Yes";
-			}
-			
-			if($of["optionrequired"] == 0){
-				$ofrequired = "No";
-			}
-			else{
-				$ofrequired = "Yes";
-			}
-			
-			if($count == 0){
-				$orderstr = "<a href=\"customfields.php?op=incorder&optionformname=". $of["optionformname"] ."\"><img src=\"images/movedown.gif\" style=\"display: inline;border: 0px;\" /></a>";
-			}
-			elseif($count > 0 && $count < ($ofn - 1)){
-				$orderstr = "<a href=\"customfields.php?op=incorder&optionformname=". $of["optionformname"] ."\"><img src=\"images/movedown.gif\" style=\"display: inline;border: 0px;\" /></a>&nbsp;<a href=\"customfields.php?op=decorder&optionformname=". $of["optionformname"] ."\"><img src=\"images/moveup.gif\" style=\"display: inline;border: 0px;\" /></a>";
-			}
-			else{
-				$orderstr = "<a href=\"customfields.php?op=decorder&optionformname=". $of["optionformname"] ."\"><img src=\"images/moveup.gif\" style=\"display: inline;border: 0px;\" /></a>";
-			}
-			
-			$thechoices = $of["optionchoices"];
-			$choices = explode(';', $thechoices);
-			$choicestr = "";
-			foreach($choices as $choice){
-				if($choice != ""){
-					$choicestr .= $choice ." ";
-				}
-				else{
-					$choicestr .= $choice;
-				}
-			}
-			
-			echo "<tr><td>". $orderstr.
-				"</td><td><strong>". $of["optionname"].
-				"</strong></td><td>". $of["optionformname"].
-				"</td><td>". $of["optionquestion"].
-				"</td><td>". $oftype .
-				"</td><td>". $choicestr.
-				"</td><td>". $ofprivate.
-				"</td><td>". $ofrequired.
-				"</td><td><a href=\"javascript:confirmdelete('". $of["optionformname"] ."','". $of["optionname"] ."');\">X</a></td></tr>";
-			
-			$count++;
-		}
-	?>
+        $ofa = mysql_query('SELECT * FROM optionalfields ORDER by optionorder ASC;');
+            $ofn = mysql_num_rows($ofa);
+            $orderstr = '';
+            $count = 0;
+            while ($of = mysql_fetch_array($ofa)) {
+                if ($of['optiontype'] == 0) {
+                    $oftype = 'Text';
+                } else {
+                    $oftype = 'Selection';
+                }
+
+                if ($of['optionprivate'] == 0) {
+                    $ofprivate = 'No';
+                } else {
+                    $ofprivate = 'Yes';
+                }
+
+                if ($of['optionrequired'] == 0) {
+                    $ofrequired = 'No';
+                } else {
+                    $ofrequired = 'Yes';
+                }
+
+                if ($count == 0) {
+                    $orderstr = '<a href="customfields.php?op=incorder&optionformname='.$of['optionformname'].'"><img src="images/movedown.gif" style="display: inline;border: 0px;" /></a>';
+                } elseif ($count > 0 && $count < ($ofn - 1)) {
+                    $orderstr = '<a href="customfields.php?op=incorder&optionformname='.$of['optionformname'].'"><img src="images/movedown.gif" style="display: inline;border: 0px;" /></a>&nbsp;<a href="customfields.php?op=decorder&optionformname='.$of['optionformname'].'"><img src="images/moveup.gif" style="display: inline;border: 0px;" /></a>';
+                } else {
+                    $orderstr = '<a href="customfields.php?op=decorder&optionformname='.$of['optionformname'].'"><img src="images/moveup.gif" style="display: inline;border: 0px;" /></a>';
+                }
+
+                $thechoices = $of['optionchoices'];
+                $choices = explode(';', $thechoices);
+                $choicestr = '';
+                foreach ($choices as $choice) {
+                    if ($choice != '') {
+                        $choicestr .= $choice.' ';
+                    } else {
+                        $choicestr .= $choice;
+                    }
+                }
+
+                echo '<tr><td>'.$orderstr.
+                '</td><td><strong>'.$of['optionname'].
+                '</strong></td><td>'.$of['optionformname'].
+                '</td><td>'.$of['optionquestion'].
+                '</td><td>'.$oftype.
+                '</td><td>'.$choicestr.
+                '</td><td>'.$ofprivate.
+                '</td><td>'.$ofrequired.
+                "</td><td><a href=\"javascript:confirmdelete('".$of['optionformname']."','".$of['optionname']."');\">X</a></td></tr>";
+
+                $count++;
+            } ?>
 	</table>
 	<br/>
 	<br/>
@@ -282,11 +259,12 @@
 		</table>
 	</form>
 	<?php
-	}
-	?>
+
+        } ?>
 	</div>
 </body>
 </html>
 		<?php
-	}
+
+    }
 ?>
