@@ -1,12 +1,13 @@
 <?php
+
 if (!isset($_SESSION)) {
     session_start();
 }
 
-$_SESSION["systemid"] = "";
-$_SESSION["username"] = "";
-$_SESSION["isadministrator"] = "FALSE";
-$_SESSION["isreporter"] = "FALSE";
+$_SESSION['systemid'] = '';
+$_SESSION['username'] = '';
+$_SESSION['isadministrator'] = 'FALSE';
+$_SESSION['isreporter'] = 'FALSE';
 
 
 /*
@@ -29,7 +30,7 @@ $_SESSION["isreporter"] = "FALSE";
 *$xmloutput = include("or-authenticate.php");
 *Then you may wish to convert $xmloutput into a simpleXML object
 */
-require_once("includes/or-dbinfo.php");
+require_once 'includes/or-dbinfo.php';
 
 /*
 *AuthenticateUser()
@@ -40,25 +41,28 @@ require_once("includes/or-dbinfo.php");
  * @param $username
  * @param $password
  * @param $settings
- * @return bool
+ *
  * @throws Exception
+ *
+ * @return bool
  */
 function IsNotNullOrEmptyString($question): bool
 {
-    return (!isset($question) || trim($question) === '');
+    return !isset($question) || trim($question) === '';
 }
 
 /**
  * @param string $username
  * @param string $password
- * @param array $settings
+ * @param array  $settings
+ *
  * @return bool
  */
 function AuthenticateUser(string $username, string $password, array $settings): bool
 {
-    $Host = "ldap://149.4.100.201:3268";
-    $qc_username = "qc\\";
-    $instr_username = "instr\\";
+    $Host = 'ldap://149.4.100.201:3268';
+    $qc_username = 'qc\\';
+    $instr_username = 'instr\\';
     $qc_username .= $username;
     $instr_username .= $username;
     $ldap = ldap_connect($Host);
@@ -66,7 +70,7 @@ function AuthenticateUser(string $username, string $password, array $settings): 
         sleep(1);
         if ($bind = ldap_bind($ldap, $qc_username, $password)) {
             return true;
-        } else if ($bind = ldap_bind($ldap, $instr_username, $password)) {
+        } elseif ($bind = ldap_bind($ldap, $instr_username, $password)) {
             return true;
         } else {
             return false;
@@ -77,50 +81,50 @@ function AuthenticateUser(string $username, string $password, array $settings): 
 }
 
 
-$username = isset($_POST["username"]) ? $_POST["username"] : "";
-$password = isset($_POST["username"]) ? $_POST["password"] : "";
+$username = isset($_POST['username']) ? $_POST['username'] : '';
+$password = isset($_POST['username']) ? $_POST['password'] : '';
 $username = stripslashes($username);
-$ajax_indicator = isset($_POST["ajax_indicator"]) ? $_POST["ajax_indicator"] : "FALSE";
+$ajax_indicator = isset($_POST['ajax_indicator']) ? $_POST['ajax_indicator'] : 'FALSE';
 $output = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<authresponse>\n";
-if ($username != "" && $password != "" && $ajax_indicator != "") {
+if ($username != '' && $password != '' && $ajax_indicator != '') {
     //LDAP
     if ($isAuthenticated = AuthenticateUser($username, $password, $settings)) {
     } else {
-        $output .= "\t<errormessage>" . "Sorry, authentication failed." . "</errormessage>\n";
+        $output .= "\t<errormessage>".'Sorry, authentication failed.'."</errormessage>\n";
     }
     if (!$isAuthenticated) {
         $output .= "\t<authenticated>false</authenticated>\n";
     } else {
-        if (mysql_num_rows(mysql_query("SELECT * FROM bannedusers WHERE username='" . $username . "';")) <= 0) {
-            $_SESSION["systemid"] = $settings["systemid"];
-            $_SESSION["username"] = $username;
+        if (mysql_num_rows(mysql_query("SELECT * FROM bannedusers WHERE username='".$username."';")) <= 0) {
+            $_SESSION['systemid'] = $settings['systemid'];
+            $_SESSION['username'] = $username;
             $output .= "\t<errormessage></errormessage>\n";
             $output .= "\t<authenticated>true</authenticated>\n";
             //Check if logged in user is an administrator
-            $aresult = mysql_query("SELECT * FROM administrators WHERE username='" . $username . "';");
+            $aresult = mysql_query("SELECT * FROM administrators WHERE username='".$username."';");
             if (mysql_num_rows($aresult) == 1) {
-                $_SESSION["isadministrator"] = "TRUE";
+                $_SESSION['isadministrator'] = 'TRUE';
                 $output .= "\t<isadministrator>true</isadministrator>\n";
             } else {
-                $_SESSION["isadministrator"] = "FALSE";
+                $_SESSION['isadministrator'] = 'FALSE';
                 $output .= "\t<isadministrator>false</isadministrator>\n";
             }
             //Check if logged in user is a reporter
-            $rresult = mysql_query("SELECT * FROM reporters WHERE username='" . $username . "';");
+            $rresult = mysql_query("SELECT * FROM reporters WHERE username='".$username."';");
             if (mysql_num_rows($rresult) == 1) {
-                $_SESSION["isreporter"] = "TRUE";
+                $_SESSION['isreporter'] = 'TRUE';
                 $output .= "\t<isreporter>true</isreporter>\n";
             } else {
-                $_SESSION["isreporter"] = "FALSE";
+                $_SESSION['isreporter'] = 'FALSE';
                 $output .= "\t<isreporter>false</isreporter>\n";
             }
         } else {
             $output .= "\t<errormessage>This user has been banned. Please contact an administrator to fix this problem.</errormessage>\n";
             $output .= "\t<authenticated>false</authenticated>\n";
-            $_SESSION["systemid"] = "";
-            $_SESSION["username"] = "";
-            $_SESSION["isadministrator"] = "FALSE";
-            $_SESSION["isreporter"] = "FALSE";
+            $_SESSION['systemid'] = '';
+            $_SESSION['username'] = '';
+            $_SESSION['isadministrator'] = 'FALSE';
+            $_SESSION['isreporter'] = 'FALSE';
         }
     }//Normal
     /*
@@ -177,13 +181,11 @@ if ($username != "" && $password != "" && $ajax_indicator != "") {
     $output .= "\t<authenticated>false</authenticated>\n\t<errormessage>One or more parameters not provided.</errormessage>\n";
 }
 
-$output .= "</authresponse>";
+$output .= '</authresponse>';
 
-if ($ajax_indicator == "TRUE") {
-    header("content-type: text/xml");
+if ($ajax_indicator == 'TRUE') {
+    header('content-type: text/xml');
     echo $output;
 } else {
     return $output;
 }
-
-?>

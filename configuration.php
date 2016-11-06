@@ -1,4 +1,5 @@
 <?php
+
 //configuration.php
 /*
 *This file contains configuration information required for OpenRoom's install.php
@@ -12,14 +13,14 @@
  * (For LDAP authentication, you must provide a username for the person that you
  * wish to be the initial administrator.)
 */
-$admin_user = "khada";
+$admin_user = 'khada';
 
 //Name
 /*
  * This will set the name of this instance of OpenRoom.
  * Default is "OpenRoom".
 */
-$instance_name = "OpenRoomVanilla";
+$instance_name = 'OpenRoomVanilla';
 
 //URL
 /*
@@ -27,7 +28,7 @@ $instance_name = "OpenRoomVanilla";
  * This should be the same address you provide to users.
  * DO NOT include protocol (http:// or https://) or filenames (index.html).
 */
-$instance_url = "library-test.qc.cuny.edu/orv";
+$instance_url = 'library-test.qc.cuny.edu/orv';
 
 //Theme
 /*
@@ -35,7 +36,7 @@ $instance_url = "library-test.qc.cuny.edu/orv";
  * the themes directory. The name of the theme should just be the name of the folder.
  * This is set to "default" by default.
 */
-$theme = "default";
+$theme = 'default';
 
 //SSL
 /*
@@ -45,7 +46,7 @@ $theme = "default";
 *COMPROMISING SECURITY. PLEASE LEAVE THIS AT ITS DEFAULT SETTING UNLESS YOU HAVE NO OTHER CHOICE.
 *Setting this value to TRUE will add the https protocol where appropriate to insure security.
 */
-$https = "true";
+$https = 'true';
 
 
 //Login Method
@@ -55,7 +56,7 @@ $https = "true";
 *"ldap"
 *Users will be granted access as long as they authenticate against your LDAP server.
 */
-$login_method = "ldap";
+$login_method = 'ldap';
 
 
 //LDAP Settings
@@ -63,8 +64,8 @@ $login_method = "ldap";
 *$host contains the host name of your ldap server
 *$baseDN contains the base dn settings for you ldap server
 */
-$ldap_host = "ldap://149.4.100.201:3268";
-$ldap_baseDN = "DC=qc,DC=ads";
+$ldap_host = 'ldap://149.4.100.201:3268';
+$ldap_baseDN = 'DC=qc,DC=ads';
 
 
 //Email Filter
@@ -79,7 +80,7 @@ $ldap_baseDN = "DC=qc,DC=ads";
 *LEAVING THE EMAIL FILTER BLANK WHEN USING THE "normal" LOGIN METHOD MAY COMPROMISE SECURITY.
 *THIS SETTING ALLOWS YOU TO RESTRICT USERS TO ONLY THOSE WHO USE YOUR EMAIL SYSTEM.
 */
-$email_filter = array("cuny.edu");
+$email_filter = ['cuny.edu'];
 
 
 //Interval
@@ -98,7 +99,7 @@ $interval = 30;
  * This string uses the same predefined date characters as the PHP date()
  * function ( http://us2.php.net/manual/en/function.date.php ).
 */
-$time_format = "g:i a";
+$time_format = 'g:i a';
 
 
 //Reservation Limits
@@ -106,28 +107,28 @@ $time_format = "g:i a";
  * This section includes settings for limiting users on how many or how long
  * their reservations may be.
  * There are three ways to limit users: duration, total, frequency, and window.
- * 
+ *
  * Duration
  * Limiting duration will place a limit on how long a single reservation may be.
  * Example: Users can make reservations at a maximum duration of 4 hours each.
  * Duration must be specified in minutes. 0 means there is no limit. (Not recommended.)
- * 
+ *
  * Total
  * Limiting totals will place a limit on the total amount of time that may be reserved
  * during a specified time period. The available periods are day, week, month, and year.
  * Example: Users can make any combination of reservations that total up to no more
  * than 8 hours per week.
  * Total must be specified in minutes. 0 means there is no limit.
- * 
+ *
  * Frequency
  * Limiting frequency will place a limit on how many reservations may be made during
  * a specified time period. The available periods are day, week, month, and year.
  * Example: Users can make a maximum of 6 reservations per week.
  * Frequency must be specified in maximum number of reservations. 0 means there is no limit.
- * 
+ *
  * Reservations are counted by their start date and time. So if a reservation runs
  * into the next day, it does not count for that day, only for the day it started on.
- * 
+ *
  * Window
  * The Window limit allows users to make reservations only within a certain time range.
  * This allows you to prevent users from making reservations 10 years into the future
@@ -141,17 +142,16 @@ $time_format = "g:i a";
  * should be 0, and the date ([m]m/[d]d/yyyy) (NO leading zeroes) should replace type.
  * Example1: array(6,"month")  The window ends 6 months from the current time.
  * Example2: array(0,"5/28/2010")  The window ends on 5/28/2010.
- * 
+ *
  * COMBINATIONS
  * If more than one of these settings is configured, combinations work thusly:
  * When a reservation is made, first the Frequency is checked, then the total, then duration.
  * If any of these checks fail, the reservation can not be made.
- * 
+ *
  * In the default values below, users may make reservations of a lengh of up to 4 hours each,
  * and may make no more than 4 hours (240) worth or reservations per day.
 */
 $limit_duration = 240;
-$limit_total = array(240, "day");
-$limit_frequency = array(0, "day");
-$limit_window = array(6, "month");
-?>
+$limit_total = [240, 'day'];
+$limit_frequency = [0, 'day'];
+$limit_window = [6, 'month'];

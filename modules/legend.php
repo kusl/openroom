@@ -3,7 +3,7 @@
 	<table id="legendtable">
 		<tr>
 			<td>
-				<img src="<?php echo $_SESSION["themepath"]; ?>images/reservebutton.png" />
+				<img src="<?php echo $_SESSION['themepath']; ?>images/reservebutton.png" />
 			</td>
 			<td>
 				 - Available
@@ -11,7 +11,7 @@
 		</tr>
 		<tr>
 			<td>
-				<img src="<?php echo $_SESSION["themepath"]; ?>images/takenbutton.png" />
+				<img src="<?php echo $_SESSION['themepath']; ?>images/takenbutton.png" />
 			</td>
 			<td>
 				 - Unavailable
@@ -19,7 +19,7 @@
 		</tr>
 		<tr>
 			<td>
-				<img src="<?php echo $_SESSION["themepath"]; ?>images/cancelbutton.png" />
+				<img src="<?php echo $_SESSION['themepath']; ?>images/cancelbutton.png" />
 			</td>
 			<td>
 				 - Your Reservation
@@ -27,7 +27,7 @@
 		</tr>
 		<tr>
 			<td>
-				<img src="<?php echo $_SESSION["themepath"]; ?>images/closedbutton.png" />
+				<img src="<?php echo $_SESSION['themepath']; ?>images/closedbutton.png" />
 			</td>
 			<td>
 				 - Closed

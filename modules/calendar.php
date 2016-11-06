@@ -1,9 +1,7 @@
 <?php
-	if(!(isset($_SESSION["username"])) || empty($_SESSION["username"])){
-		
-	}
-	else{
-		?>
+    if (!(isset($_SESSION['username'])) || empty($_SESSION['username'])) {
+    } else {
+        ?>
 		<script language="javascript" type="text/javascript">
 			document.getElementsByClassName = function(cl) {
 				var retnode = [];
@@ -77,7 +75,7 @@
 					}
 					else{
 						document.getElementById("dayviewModule").innerHTML = "";
-						document.getElementById("loader").innerHTML = "<br\/><br\/><br\/><center><img src='<?php echo $_SESSION["themepath"]; ?>images\/ajax-loader.gif' \/><br\/>Please wait...<\/center>";
+						document.getElementById("loader").innerHTML = "<br\/><br\/><br\/><center><img src='<?php echo $_SESSION['themepath']; ?>images\/ajax-loader.gif' \/><br\/>Please wait...<\/center>";
 					}
 				};
 				
@@ -125,5 +123,6 @@
 		</script>
 		<div id="calendarModule"></div>
 		<?php
-	}
+
+    }
 ?>
